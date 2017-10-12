@@ -1,8 +1,4 @@
-'''
-Music Identification Program (a.k.a. Shazam/Soundhound)
-Proof of Concept
-Bryant Moquist
-'''
+
 from __future__ import print_function
 import scipy, pylab
 from scipy.io.wavfile import read
