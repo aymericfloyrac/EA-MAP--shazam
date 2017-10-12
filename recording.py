@@ -1,57 +1,41 @@
 import pyaudio
 import wave
 
-FORMAT = pyaudio.paInt16
-CHANNELS = 2
-RATE = 44100
-CHUNK = 1024
-RECORD_SECONDS = 5
-WAVE_OUTPUT_FILENAME = "file5.wav"
 
-audio = pyaudio.PyAudio()
+def record():
 
-# start Recording
-stream = audio.open(format=FORMAT, channels=CHANNELS,
-                rate=RATE, input=True,
-                frames_per_buffer=CHUNK)
-print "recording..."
-frames = []
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 2
+    RATE = 44100
+    CHUNK = 1024
+    RECORD_SECONDS = 5
+    WAVE_OUTPUT_FILENAME = "file5.wav"
 
-for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
-    data = stream.read(CHUNK)
-    frames.append(data)
-print "finished recording"
+    audio = pyaudio.PyAudio()
+
+    # start Recording
+    stream = audio.open(format=FORMAT, channels=CHANNELS,
+                    rate=RATE, input=True,
+                    frames_per_buffer=CHUNK)
+    print "recording..."
+    frames = []
+
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+        data = stream.read(CHUNK)
+        frames.append(data)
+    print "finished recording"
 
 
-# stop Recording
-stream.stop_stream()
-stream.close()
-audio.terminate()
+    # stop Recording
+    stream.stop_stream()
+    stream.close()
+    audio.terminate()
 
-waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
-waveFile.setnchannels(CHANNELS)
-waveFile.setsampwidth(audio.get_sample_size(FORMAT))
-waveFile.setframerate(RATE)
-waveFile.writeframes(b''.join(frames))
-waveFile.close()
+    waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+    waveFile.setnchannels(CHANNELS)
+    waveFile.setsampwidth(audio.get_sample_size(FORMAT))
+    waveFile.setframerate(RATE)
+    waveFile.writeframes(b''.join(frames))
+    waveFile.close()
 
-#play file
-
-p = pyaudio.PyAudio()
-
-stream = p.open(format=FORMAT,
-                channels=CHANNELS,
-                rate=RATE,
-                input=True,
-                frames_per_buffer=CHUNK)
-
-play=pyaudio.PyAudio()
-stream_play=play.open(format=FORMAT,
-                      channels=CHANNELS,
-                      rate=RATE,
-                      output=True)
-for data in frames:
-    stream_play.write(data)
-stream_play.stop_stream()
-stream_play.close()
-play.terminate()
+    return WAVE_OUTPUT_FILENAME
