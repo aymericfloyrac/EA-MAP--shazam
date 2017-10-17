@@ -1,11 +1,12 @@
 '''
 Hash and Acoustic Fingerprint Functions
+Bryant Moquist
 '''
 
 import numpy as np
-# trouver les trois points les plus proches au point d'ancrage
+
 def findAdjPts(index,A,delay_time,delta_time,delta_freq):
-        
+    "Find the three closest adjacent points to the anchor point"    
     adjPts = []
     low_x = A[index][0]+delay_time
     high_x = low_x+delta_time
