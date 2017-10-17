@@ -90,7 +90,7 @@ def create_database():
 
     print('The dimensions of the database hash matrix: '+str(database.shape))
     database = database[np.lexsort((database[:,2],database[:,1],database[:,0]))]
-
+    database.dump("database.pkl")
     return database, songnames, songs
 
 
