@@ -12,6 +12,7 @@ import peakpicker as pp
 import fingerprint as fhash
 import matplotlib
 import numpy as np
+import os 
 #import tdft
 
 ##VIRGINIE
@@ -21,8 +22,8 @@ import librosa
 
 if __name__ == '__main__':
     ##VIRGINIE
-
-    database, songnames, songs = create_database()
+    db_path=input("enter location of the database:  ")
+    [database, songnames, songs] = np.load(db_path)
     ##END VIRGINIE
 
     try:
