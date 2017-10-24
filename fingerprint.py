@@ -6,19 +6,19 @@ Bryant Moquist
 import numpy as np
 
 def findAdjPts(index,A,delay_time,delta_time,delta_freq):
-    "Find the three closest adjacent points to the anchor point"    
+    "Find the three closest adjacent points to the anchor point"
     adjPts = []
-    low_x = A[index][0]+delay_time
+    low_x = A[index].time+delay_time
     high_x = low_x+delta_time
-    low_y = A[index][1]-delta_freq/2
-    high_y = A[index][1]+delta_freq/2
-    
-    for i in A:
-        if ((i[0]>low_x and i[0]<high_x) and (i[1]>low_y and i[1]<high_y)):
-            adjPts.append(i)
-            
+    low_y = A[index].freq-delta_freq/2
+    high_y = A[index].freq+delta_freq/2
+
+    for pk in A:
+        if ((pk.time>low_x and pk.time<high_x) and (pk.freq>low_y and pk.freq<high_y)):
+            adjPts.append(pk)
+
     return adjPts
-    
+
 def hashPeaks(A,songID,delay_time,delta_time,delta_freq):
     "Create a matrix of peaks hashed as: [[freq_anchor, freq_other, delta_time], time_anchor, songID]"
     hashMatrix = np.zeros((len(A)*100,5))  #Assume size limitation
@@ -28,16 +28,16 @@ def hashPeaks(A,songID,delay_time,delta_time,delta_freq):
         adjPts = findAdjPts(i,A,delay_time,delta_time,delta_freq)
         adjNum=len(adjPts)
         for j in range(0,adjNum):
-            hashMatrix[index][0] = A[i][1]
-            hashMatrix[index][1] = adjPts[j][1]
-            hashMatrix[index][2] = adjPts[j][0]-A[i][0]
-            hashMatrix[index][3] = A[i][0]
+            hashMatrix[index][0] = A[i].freq
+            hashMatrix[index][1] = adjPts[j].freq
+            hashMatrix[index][2] = adjPts[j].time-A[i].time
+            hashMatrix[index][3] = A[i].time
             hashMatrix[index][4] = songID
             index=index+1
-    
+
     hashMatrix = hashMatrix[~np.all(hashMatrix==0,axis=1)]
     hashMatrix = np.sort(hashMatrix,axis=0)
-        
+
     return hashMatrix
 
 def hashSamplePeaks(A,delay_time,delta_time,delta_freq):
@@ -49,15 +49,15 @@ def hashSamplePeaks(A,delay_time,delta_time,delta_freq):
         adjPts = findAdjPts(i,A,delay_time,delta_time,delta_freq)
         adjNum = len(adjPts)
         for j in range(0,adjNum):
-            hashMatrix[index][0] = A[i][1]
-            hashMatrix[index][1] = adjPts[j][1]
-            hashMatrix[index][2] = adjPts[j][0]-A[i][0]
-            hashMatrix[index][3] = A[i][0]
+            hashMatrix[index][0] = A[i].freq
+            hashMatrix[index][1] = adjPts[j].freq
+            hashMatrix[index][2] = adjPts[j].time-A[i].time
+            hashMatrix[index][3] = A[i].freq
             index=index+1
 
     hashMatrix = hashMatrix[~np.all(hashMatrix==0,axis=1)]
     hashMatrix = np.sort(hashMatrix,axis=0)
-        
+
     return hashMatrix
 
 def findTimePairs(hash_database,sample_hash,deltaTime,deltaFreq):
@@ -77,5 +77,5 @@ def findTimePairs(hash_database,sample_hash,deltaTime,deltaFreq):
                     continue
             else:
                 continue
-            
+
     return timePairs
