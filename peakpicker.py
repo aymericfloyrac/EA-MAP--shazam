@@ -1,11 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Oct 17 14:19:24 2017
-
-@author: aymer
-"""
-
-
 import numpy as np
 
 def find_thres(spectrogram,percentile,base):
@@ -21,9 +13,9 @@ class peak:
         self.time=t
         self.freq=f
         self.value=S[t,f]
-    
+
 def peak_pick (S,f_dim1,t_dim1,f_dim2,t_dim2,threshold,base):
-    "Selects local peaks in a spectrogram and returns a list of tuples (time, freq, amplitude)" 
+    "Selects local peaks in a spectrogram and returns a list of tuples (time, freq, amplitude)"
     "S is spectrogram matrix"
     "f_dim1,f_dim2,t_dim1,and t_dim2 are freq x time dimensions of the sliding window for first and second passes"
     "threshold is the minimum amplitude required to be a peak"
@@ -52,20 +44,20 @@ def peak_pick (S,f_dim1,t_dim1,f_dim2,t_dim2,threshold,base):
             "Check if the largest value in the window is greater than the threshold "
             "ie if there are peaks in it"
             if np.amax(window) >= threshold:
-                row, col = np.unravel_index(np.argmax(window), window.shape) 
+                row, col = np.unravel_index(np.argmax(window), window.shape)
                 # pulls coordinates of max value from window
-                p=peak(i+row,j+col)
+                p=peak(i+row,j+col,S)
                 peaks.append(p)
 #                t_coords.append(i+row)
-#                f_coords.append(j+col) 
-#     
-    "Iterates through coordinates selected above to make sure that each of those points is in fact a local peak" 
-    
-    for peak in peaks:
-        fmin=peak.freq-f_dim2
-        fmax=peak.freq+f_dim2
-        tmin=peak.time-t_dim2
-        tmax=peak.time+t_dim2
+#                f_coords.append(j+col)
+#
+    "Iterates through coordinates selected above to make sure that each of those points is in fact a local peak"
+
+    for pk in peaks:
+        fmin=pk.freq-f_dim2
+        fmax=pk.freq+f_dim2
+        tmin=pk.time-t_dim2
+        tmax=pk.time+t_dim2
 #    for k in range(0,len(f_coords)):
 #        fmin = f_coords[k] - f_dim2
 #        fmax = f_coords[k] + f_dim2
@@ -87,8 +79,8 @@ def peak_pick (S,f_dim1,t_dim1,f_dim2,t_dim2,threshold,base):
             continue
 
         "Eliminates coordinates that are not local peaks by setting their coordinates to -1"
-        if S[peak.time,peak.freq] < np.amax(window):
-            peaks.remove(peak)
+        if S[pk.time,pk.freq] < np.amax(window):
+            peaks.remove(pk)
 #            t_coords[k] = -1
 #            f_coords[k] = -1
 #
@@ -103,7 +95,7 @@ def peak_pick (S,f_dim1,t_dim1,f_dim2,t_dim2,threshold,base):
 "separate into low freq and high freq peaks, then remove those who don't satisfy the threshold criteria"
 def reduce_peaks(peaks,fftsize,high_peak_threshold,low_peak_threshold):
 
-    #Separate regions ensure better spread of peaks. 
+    #Separate regions ensure better spread of peaks.
     low_peaks = []
     high_peaks = []
 
@@ -113,17 +105,17 @@ def reduce_peaks(peaks,fftsize,high_peak_threshold,low_peak_threshold):
             high_peaks.append(item)
         else:
             low_peaks.append(item)
-    
-    #Eliminate peaks based on respective thresholds in the low and high frequency regions.  
+
+    #Eliminate peaks based on respective thresholds in the low and high frequency regions.
     reduced_peaks = []
     for item in peaks:
         if(item.freq>(fftsize/4)):
-            if(item.value>np.percentile(high_peaks,high_peak_threshold,axis=0)[2]):
+            if(item.value>np.percentile([pk.freq for pk in high_peaks],high_peak_threshold,axis=0)):
                 reduced_peaks.append(item)
             else:
                 continue
         else:
-            if(item.value>np.percentile(low_peaks,low_peak_threshold,axis=0)[2]):
+            if(item.value>np.percentile([pk.freq for pk in low_peaks],low_peak_threshold,axis=0)):
                 reduced_peaks.append(item)
             else:
                 continue
