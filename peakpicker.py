@@ -95,28 +95,17 @@ def peak_pick (S,f_dim1,t_dim1,f_dim2,t_dim2,threshold,base):
 "categorize peaks, then remove those who don't satisfy the threshold criteria"
 def reduce_peaks(peaks,fftsize,threshold):
 
-    #Separate regions ensure better spread of peaks.
-    low_peaks = []
-    high_peaks = []
-
-    for item in peaks:
-        "pourquoi ce critere de fftsize/4?"
-        if(item.freq>(fftsize/4)):
-            high_peaks.append(item)
-        else:
-            low_peaks.append(item)
-
     reduced_peaks = []
+    [vlpeaks,lpeaks,lmpeaks,mpeaks,mhpeaks,hpeaks]=[[] for _ in range(6)]
+    bands=[vlpeaks,lpeaks,lmpeaks,mpeaks,mhpeaks,hpeaks]
     for item in peaks:
-#       
+#
 #    the very low sound band (from bin 0 to 10)
 #the low sound band (from bin 10 to 20)
 #the low-mid sound band (from bin 20 to 40)
 #the mid sound band (from bin 40 to 80)
 #the mid-high sound band (from bin 80 to 160)
 #the high sound band (from bin 160 to 511)
-        [vlpeaks,lpeaks,lmpeaks,mpeaks,mhpeaks,hpeaks]=[]*6
-        bands=[vlpeaks,lpeaks,lmpeaks,mpeaks,mhpeaks,hpeaks]
         if (item.freq<fftsize*10/512):
             vlpeaks.append(item)
         elif (item.freq<fftsize*20/512):
@@ -129,19 +118,26 @@ def reduce_peaks(peaks,fftsize,threshold):
             mhpeaks.append(item)
         else:
             hpeaks.append(item)
-        
-        #get the 6 strongest bins 
-        reduced_peaks=[]
-        for band in bands:
-            reduced_peaks.append(np.argmax([pk.value for pk in band]))
-            
-        #compute an average of the values and keep only the ones above the threshold
-        moy=np.mean([pk.value for pk in reduced_peaks])
-        for pk in reduced_peaks:
-            if (pk.value<moy*threshold):
-                reduced_peaks.remove(pk)
-                
-         #if(item.freq>(fftsize/4)):
+        print([len(w) for w in bands])
+
+    #get the 6 strongest bins
+    reduced_peaks=[]
+    for band in bands:
+        if (len(band)==0):
+            reduced_peaks.append(peak(0,0,np.zeros((1,1))))
+        else:
+            i=np.argmax([pk.value for pk in band])
+            reduced_peaks.append(band[i])
+        #print("avant tout", len(reduced_peaks))
+
+    #compute an average of the values and keep only the ones above the threshold
+    moy=np.mean([pk.value for pk in reduced_peaks])
+    #print("avant oyenne:",len(reduced_peaks))
+    for pk in reduced_peaks:
+        if (pk.value<moy*threshold):
+            reduced_peaks.remove(pk)
+    #print("apres moyenne:",len(reduced_peaks))
+     #if(item.freq>(fftsize/4)):
 #            if(item.value>np.percentile([pk.freq for pk in high_peaks],high_peak_threshold,axis=0)):
 #                reduced_peaks.append(item)
 #            else:
@@ -151,6 +147,6 @@ def reduce_peaks(peaks,fftsize,threshold):
 #                reduced_peaks.append(item)
 #            else:
 #                continue
-    ###############################################################
-        
+###############################################################
+
     return reduced_peaks
