@@ -94,7 +94,6 @@ def create_database():
     #export to pkl
     db=np.array([database, songnames, songs])
     db.dump("database.pkl")
-    return null
 
 
 
