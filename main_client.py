@@ -23,7 +23,7 @@ import librosa
 if __name__ == '__main__':
     ##VIRGINIE
     db_path=input("enter location of the database:  ")
-    [database, songnames, songs] = np.load(db_path)
+    database, songnames, songs = np.load(db_path)
     ##END VIRGINIE
 
     try:
